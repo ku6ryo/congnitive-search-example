@@ -22,14 +22,19 @@ async function main() {
     input: process.stdin,
     output: process.stdout
   })
-  while (true) {
-    const text = await rl.question("text to index: ")
-    const indexDocumentsResult = await searchClient.mergeOrUploadDocuments([{
-      id: randomUUID(),
-      text,
-    }])
-    console.log(indexDocumentsResult)
+  const text = await rl.question(`Delete index ${indexName}? y to confirm: `)
+  if (text.toLocaleLowerCase() === "y") {
+    while (await searchClient.getDocumentsCount() > 0) {
+      const r = await searchClient.search("*")
+      const docs = [] as Pick<unknown, never>[]
+      for await (const result of r.results) {
+        docs.push(result.document)
+      }
+      console.log(docs)
+      await searchClient.deleteDocuments(docs)
+    }
   }
+  process.exit(0)
 }
 
 main().catch((err) => {

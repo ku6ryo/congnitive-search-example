@@ -23,12 +23,11 @@ async function main() {
     output: process.stdout
   })
   while (true) {
-    const text = await rl.question("text to index: ")
-    const indexDocumentsResult = await searchClient.mergeOrUploadDocuments([{
-      id: randomUUID(),
-      text,
-    }])
-    console.log(indexDocumentsResult)
+    const text = await rl.question("query: ")
+    const searchResult = await searchClient.search(text)
+    for await (const result of searchResult.results) {
+      console.log(result.document)
+    }
   }
 }
 
